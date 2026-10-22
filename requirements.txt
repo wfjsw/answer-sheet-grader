@@ -1,0 +1,7 @@
+# Core (required)
+pymupdf>=1.24
+pillow>=10.0
+flask>=3.0
+
+# Optional: nicer handwriting OCR (CPU). The tool works without it.
+# easyocr>=1.7

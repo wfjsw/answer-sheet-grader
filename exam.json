@@ -1,0 +1,40 @@
+{
+  "title": "Sample Quiz",
+  "canvas_assignment": "Quiz 1 (000000)",
+  "points_possible": 10.0,
+  "num_questions": 20,
+  "question_points": {
+    "default": 0.5
+  },
+  "answer_key": {
+    "docx": null,
+    "inline": {
+      "1": "A", "2": "B", "3": "C", "4": "D", "5": "A",
+      "6": "B", "7": "C", "8": "D", "9": "A", "10": "B",
+      "11": "C", "12": "D", "13": "A", "14": "B", "15": "C",
+      "16": "D", "17": "A", "18": "B", "19": "C", "20": "D"
+    }
+  },
+  "paths": {
+    "roster_glob": "examples/*roster*.csv",
+    "scan_globs": ["examples/*scans*.pdf"],
+    "work_dir": "work",
+    "output_dir": "output"
+  },
+  "form": {
+    "page_width": 612.0,
+    "page_height": 792.0,
+    "row_y0": 182.0,
+    "row_dy": 18.7,
+    "n_rows": 5,
+    "cols": [
+      { "q_x": [88.0, 108.0], "ans_x": [122.0, 175.0], "q_start": 1 },
+      { "q_x": [200.0, 222.0], "ans_x": [240.0, 290.0], "q_start": 6 },
+      { "q_x": [316.0, 340.0], "ans_x": [348.0, 410.0], "q_start": 11 },
+      { "q_x": [432.0, 458.0], "ans_x": [470.0, 530.0], "q_start": 16 }
+    ],
+    "name_y": [93.0, 122.0],
+    "id_y": [108.0, 128.0],
+    "field_x": 155.0
+  }
+}

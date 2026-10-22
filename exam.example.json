@@ -1,0 +1,38 @@
+{
+  "title": "Your Exam Title",
+  "canvas_assignment": "Assignment Name (123456)",
+  "points_possible": 100.0,
+  "num_questions": 40,
+  "question_points": {
+    "default": 2.5
+  },
+  "answer_key": {
+    "docx": "Answer_Key.docx",
+    "inline": {
+      "1": "A",
+      "2": "C"
+    }
+  },
+  "paths": {
+    "roster_glob": "*Grades*.csv",
+    "scan_globs": ["scans/*.pdf"],
+    "work_dir": "work",
+    "output_dir": "output"
+  },
+  "form": {
+    "page_width": 612.0,
+    "page_height": 792.0,
+    "row_y0": 182.0,
+    "row_dy": 18.7,
+    "n_rows": 17,
+    "cols": [
+      { "q_x": [88.0, 108.0], "ans_x": [122.0, 175.0], "q_start": 1 },
+      { "q_x": [200.0, 222.0], "ans_x": [240.0, 290.0], "q_start": 18 },
+      { "q_x": [316.0, 340.0], "ans_x": [348.0, 410.0], "q_start": 35 },
+      { "q_x": [432.0, 458.0], "ans_x": [470.0, 530.0], "q_start": 52 }
+    ],
+    "name_y": [93.0, 122.0],
+    "id_y": [108.0, 128.0],
+    "field_x": 155.0
+  }
+}

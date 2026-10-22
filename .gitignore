@@ -1,0 +1,17 @@
+# Never commit real student data
+*.csv
+!examples/*roster*.csv
+*.pdf
+!examples/*scans*.pdf
+work/
+output/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+*.id0
+*.id1
+*.id2
+.DS_Store
+Thumbs.db

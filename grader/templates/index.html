@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Midterm Grader</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-title">Midterm Grader</div>
+    <div class="brand-sub" id="boot-info">Loading…</div>
+  </div>
+  <div class="topbar-actions">
+    <div class="pill" id="progress-pill">—</div>
+    <label class="order-toggle" title="Page order of graded_feedback.pdf only. Scan list stays in scan order.">
+      <span>Feedback PDF</span>
+      <select id="pdf-order">
+        <option value="scan">Scan order (1→N)</option>
+        <option value="reverse">Reverse (duplex back-side)</option>
+      </select>
+    </label>
+    <button class="btn ghost" id="btn-prefill" title="Copy OCR letter guesses into the grid. Review every cell.">Prefill from OCR</button>
+    <button class="btn ghost" id="btn-clear">Clear page</button>
+    <button class="btn primary" id="btn-export">Export grades + PDF</button>
+  </div>
+</header>
+
+<main class="layout">
+  <!-- ===================== page list ===================== -->
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-title">Scan pages</div>
+      <input type="search" id="page-filter" placeholder="Filter…" autocomplete="off">
+    </div>
+    <ul class="page-list" id="page-list"></ul>
+    <div class="sidebar-foot">
+      <div class="hint">Click a page. Match the student by hand. Type A/B/C/D to grade.</div>
+    </div>
+  </aside>
+
+  <!-- ===================== workspace ===================== -->
+  <section class="workspace">
+    <div class="workspace-top">
+      <div class="page-pane">
+        <div class="pane-bar">
+          <div class="pane-title" id="page-title">Select a page</div>
+          <div class="pane-tools">
+            <label class="overlay-toggle" title="Show recognized letters on the scan">
+              <input type="checkbox" id="toggle-overlay" checked>
+              <span>Recognized</span>
+            </label>
+            <button class="btn tiny ghost" id="btn-zoom-out" title="Zoom out">−</button>
+            <button class="btn tiny ghost" id="btn-zoom-in" title="Zoom in">+</button>
+            <button class="btn tiny ghost" id="btn-zoom-fit" title="Fit width">Fit</button>
+          </div>
+        </div>
+        <div class="page-frame" id="page-frame">
+          <div class="page-stack" id="page-stack">
+            <img id="page-image" alt="Scanned answer sheet" draggable="false">
+            <div class="page-overlay" id="page-overlay" aria-hidden="true"></div>
+          </div>
+          <div class="page-empty" id="page-empty">Choose a scan page on the left</div>
+        </div>
+      </div>
+
+      <div class="side-pane">
+        <!-- student matching -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Student</div>
+            <div class="badge" id="assign-badge">unassigned</div>
+          </div>
+          <div class="student-current" id="student-current">No student assigned</div>
+
+          <label class="field-label" for="student-search">Search roster by name or ID</label>
+          <div class="combo">
+            <input type="text" id="student-search" placeholder="Name, SIS/netID, or student ID"
+                   autocomplete="off" spellcheck="false">
+            <ul class="combo-list" id="student-list"></ul>
+          </div>
+
+          <div class="ocr-hint" id="ocr-hint"></div>
+          <button class="btn ghost wide" id="btn-suggest">Suggest from OCR name</button>
+        </div>
+
+        <!-- score -->
+        <div class="card score-card">
+          <div class="card-head">
+            <div class="card-title">Score</div>
+            <div class="score-big" id="score-big">0.00</div>
+          </div>
+          <div class="score-meta" id="score-meta">0 correct · 0 wrong · 0 blank</div>
+          <div class="score-bar"><div class="score-bar-fill" id="score-bar-fill"></div></div>
+          <div class="score-detail" id="score-detail"></div>
+        </div>
+
+        <!-- answer grid -->
+        <div class="card grow">
+          <div class="card-head">
+            <div class="card-title">Answers</div>
+            <div class="card-sub">A B C D · ←/→ move · 0 or · clears</div>
+          </div>
+          <div class="ans-legend">
+            <span class="lg correct">correct</span>
+            <span class="lg wrong">wrong</span>
+            <span class="lg blank">blank</span>
+            <span class="lg weight">weight</span>
+          </div>
+          <div class="ans-grid" id="ans-grid"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast" hidden></div>
+
+<dialog id="export-dialog">
+  <div class="dialog-head">
+    <div class="dialog-title">Export ready</div>
+    <button class="btn tiny ghost" id="btn-close-dialog">Close</button>
+  </div>
+  <div class="dialog-body" id="export-body"></div>
+</dialog>
+
+<dialog id="help-dialog">
+  <div class="dialog-head">
+    <div class="dialog-title">Keyboard shortcuts</div>
+    <button class="btn tiny ghost" id="btn-close-help">Close</button>
+  </div>
+  <div class="dialog-body help-body">
+    <div class="help-cols">
+      <div>
+        <h3>Answer</h3>
+        <dl>
+          <dt><kbd>A</kbd><kbd>B</kbd><kbd>C</kbd><kbd>D</kbd></dt><dd>Set answer (auto-advance)</dd>
+          <dt><kbd>1</kbd>–<kbd>4</kbd></dt><dd>Same as A–D</dd>
+          <dt><kbd>0</kbd> <kbd>⌫</kbd> <kbd>Del</kbd> <kbd>Space</kbd> <kbd>-</kbd></dt><dd>Clear current answer</dd>
+          <dt><kbd>Backspace</kbd></dt><dd>Clear and step back</dd>
+          <dt><kbd>Enter</kbd></dt><dd>Confirm cell / move next</dd>
+          <dt><kbd>Tab</kbd></dt><dd>Next blank question</dd>
+          <dt><kbd>Shift</kbd>+<kbd>Tab</kbd></dt><dd>Previous blank question</dd>
+          <dt><kbd>N</kbd></dt><dd>Jump to next blank</dd>
+          <dt><kbd>W</kbd></dt><dd>Jump to next wrong</dd>
+        </dl>
+      </div>
+      <div>
+        <h3>Move</h3>
+        <dl>
+          <dt><kbd>↑</kbd><kbd>↓</kbd> / <kbd>J</kbd><kbd>K</kbd></dt><dd>Prev / next question</dd>
+          <dt><kbd>←</kbd><kbd>→</kbd> / <kbd>H</kbd><kbd>L</kbd></dt><dd>Prev / next question (same)</dd>
+          <dt><kbd>Home</kbd> / <kbd>End</kbd></dt><dd>First / last question</dd>
+          <dt><kbd>PgUp</kbd> / <kbd>PgDn</kbd></dt><dd>Prev / next scan page</dd>
+          <dt><kbd>[</kbd> / <kbd>]</kbd></dt><dd>Prev / next scan page</dd>
+          <dt><kbd>Ctrl</kbd>+<kbd>←</kbd>/<kbd>→</kbd></dt><dd>Prev / next scan page</dd>
+          <dt><kbd>G</kbd></dt><dd>Go to question #</dd>
+        </dl>
+      </div>
+      <div>
+        <h3>Student &amp; pages</h3>
+        <dl>
+          <dt><kbd>S</kbd></dt><dd>Focus student search</dd>
+          <dt><kbd>Enter</kbd></dt><dd>Assign highlighted student</dd>
+          <dt><kbd>Esc</kbd></dt><dd>Close dropdown / help</dd>
+          <dt><kbd>U</kbd></dt><dd>Unassign this page</dd>
+          <dt><kbd>/</kbd></dt><dd>Filter page list</dd>
+          <dt><kbd>P</kbd></dt><dd>Prefill answers from OCR</dd>
+          <dt><kbd>X</kbd></dt><dd>Clear this page (answers + student)</dd>
+          <dt><kbd>E</kbd></dt><dd>Export CSV + feedback PDF</dd>
+        </dl>
+      </div>
+      <div>
+        <h3>View</h3>
+        <dl>
+          <dt><kbd>+</kbd> / <kbd>=</kbd></dt><dd>Zoom in</dd>
+          <dt><kbd>_</kbd> or zoom buttons</dt><dd>Zoom out</dd>
+          <dt><kbd>F</kbd></dt><dd>Fit scan width</dd>
+          <dt><kbd>V</kbd></dt><dd>Toggle answer-key highlight</dd>
+          <dt><kbd>O</kbd></dt><dd>Toggle scan overlay (recognized letters)</dd>
+          <dt><kbd>?</kbd></dt><dd>This help</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="help-foot">Shortcuts work whenever focus is not in a text field.</div>
+  </div>
+</dialog>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
